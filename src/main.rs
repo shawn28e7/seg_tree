@@ -115,7 +115,7 @@ pub mod seg_tree
         {
             self.range
         }
-        // combine to values
+        // combine two values
         fn comb(a: i32, b: i32) -> i32
         {
             a + b
