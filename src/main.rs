@@ -153,10 +153,6 @@ pub mod seg_tree
             {
                 panic!("Invalid query range");
             }
-            if l >= r
-            {
-                return 0;
-            }
             if (l, r) == self.range
             {
                 self.val
