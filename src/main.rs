@@ -1,3 +1,25 @@
+//! The `seg_tree` module provides an implementation of a segment tree for efficient range queries and updates.
+//!
+//! # Example
+//!
+//! ```
+//! use seg_tree::SegTree;
+//!
+//! fn main() {
+//!     let mut seg_tree = SegTree::new(0, 10);
+//!     println!("Build success");
+//!
+//!     for i in 0..10 {
+//!         seg_tree.revise(i, i as i32);
+//!     }
+//!     println!("Revise success");
+//!
+//!     for i in 1..=10 {
+//!         println!("Sum from 0 to {}: {}", i - 1, seg_tree.ask(0, i));
+//!     }
+//!     println!("Ask success");
+//! }
+//! ```
 pub mod seg_tree
 {
     use std::cell::RefCell;
@@ -13,6 +35,17 @@ pub mod seg_tree
 
     impl SegTree
     {
+        /// Creates a new segment tree with the specified range `[l, r)`.
+        ///
+        /// # Panics
+        ///
+        /// Panics if `l >= r`, as this would create an invalid range.
+        ///
+        /// # Examples
+        ///
+        /// ```
+        /// let seg_tree = SegTree::new(0, 10);
+        /// ```
         pub fn new(l: usize, r: usize) -> SegTree
         {
             if l >= r
@@ -50,7 +83,23 @@ pub mod seg_tree
                 mid: l + (r - l) / 2,
             }))
         }
-
+        /// Updates the value at a specific index in the segment tree.
+        ///
+        /// # Arguments
+        ///
+        /// * `tar` - The index to update.
+        /// * `k` - The new value.
+        ///
+        /// # Panics
+        ///
+        /// Panics if the target index is out of range.
+        ///
+        /// # Examples
+        ///
+        /// ```
+        /// let mut seg_tree = SegTree::new(0, 10);
+        /// seg_tree.revise(2, 10);
+        /// ```
         pub fn revise(&mut self, tar: usize, k: i32)
         {
             if tar < self.range.0 || tar >= self.range.1
@@ -81,7 +130,23 @@ pub mod seg_tree
                 self.rn.as_ref().map_or(0, |right| right.borrow().val),
             );
         }
-
+        /// Queries the sum of values in the specified range `[l, r)`.
+        ///
+        /// # Arguments
+        ///
+        /// * `l` - The left bound of the query range.
+        /// * `r` - The right bound of the query range.
+        ///
+        /// # Panics
+        ///
+        /// Panics if the query range is invalid.
+        ///
+        /// # Examples
+        ///
+        /// ```
+        /// let seg_tree = SegTree::new(0, 10);
+        /// let sum = seg_tree.ask(0, 5);
+        /// ```
         pub fn ask(&self, l: usize, r: usize) -> i32
         {
             if l >= r || l < self.range.0 || r > self.range.1
