@@ -29,8 +29,8 @@ pub mod seg_tree
         val: i32,
         range: (usize, usize),
         mid: usize,
-        ln: Option<Rc<RefCell<SegTree>>>,
-        rn: Option<Rc<RefCell<SegTree>>>,
+        l_node: Option<Rc<RefCell<SegTree>>>,
+        r_node: Option<Rc<RefCell<SegTree>>>,
     }
 
     impl SegTree
@@ -55,32 +55,32 @@ pub mod seg_tree
             let m: usize = l + (r - l) / 2;
             SegTree {
                 val: 0,
-                ln: Some(Self::build(l, m)),
-                rn: Some(Self::build(m, r)),
+                l_node: Some(Self::build(l, m)),
+                r_node: Some(Self::build(m, r)),
                 range: (l, r),
                 mid: l + (r - l) / 2,
             }
         }
 
-        fn build(l: usize, r: usize) -> Rc<RefCell<SegTree>>
+        fn build(l_bound: usize, r_bound: usize) -> Rc<RefCell<SegTree>>
         {
-            if r - l == 1
+            if r_bound - l_bound == 1
             {
                 return Rc::new(RefCell::new(SegTree {
                     val: 0,
-                    ln: None,
-                    rn: None,
-                    range: (l, r),
-                    mid: l,
+                    l_node: None,
+                    r_node: None,
+                    range: (l_bound, r_bound),
+                    mid: l_bound,
                 }));
             }
-            let m = l + (r - l) / 2;
+            let m = l_bound + (r_bound - l_bound) / 2;
             Rc::new(RefCell::new(SegTree {
                 val: 0,
-                ln: Some(Self::build(l, m)),
-                rn: Some(Self::build(m, r)),
-                range: (l, r),
-                mid: l + (r - l) / 2,
+                l_node: Some(Self::build(l_bound, m)),
+                r_node: Some(Self::build(m, r_bound)),
+                range: (l_bound, r_bound),
+                mid: l_bound + (r_bound - l_bound) / 2,
             }))
         }
         /// Updates the value at a specific index in the segment tree.
@@ -100,34 +100,34 @@ pub mod seg_tree
         /// let mut seg_tree = SegTree::new(0, 10);
         /// seg_tree.revise(2, 10);
         /// ```
-        pub fn revise(&mut self, tar: usize, k: i32)
+        pub fn revise(&mut self, target_pos: usize, value: i32)
         {
-            if tar < self.range.0 || tar >= self.range.1
+            if target_pos < self.range.0 || target_pos >= self.range.1
             {
                 panic!("Target index out of range");
             }
-            if (tar, tar + 1) == self.range
+            if (target_pos, target_pos + 1) == self.range
             {
-                self.val = k;
+                self.val = value;
                 return;
             }
-            if tar < self.mid
+            if target_pos < self.mid
             {
-                if let Some(ref left) = self.ln
+                if let Some(ref left) = self.l_node
                 {
-                    left.borrow_mut().revise(tar, k);
+                    left.borrow_mut().revise(target_pos, value);
                 }
             }
             else
             {
-                if let Some(ref right) = self.rn
+                if let Some(ref right) = self.r_node
                 {
-                    right.borrow_mut().revise(tar, k);
+                    right.borrow_mut().revise(target_pos, value);
                 }
             }
             self.val = SegTree::comb(
-                self.ln.as_ref().map_or(0, |left| left.borrow().val),
-                self.rn.as_ref().map_or(0, |right| right.borrow().val),
+                self.l_node.as_ref().map_or(0, |left| left.borrow().val),
+                self.r_node.as_ref().map_or(0, |right| right.borrow().val),
             );
         }
         /// Queries the sum of values in the specified range `[l, r)`.
@@ -159,20 +159,24 @@ pub mod seg_tree
             }
             else if r <= self.mid
             {
-                self.ln.as_ref().map_or(0, |left| left.borrow().ask(l, r))
+                self.l_node
+                    .as_ref()
+                    .map_or(0, |left| left.borrow().ask(l, r))
             }
             else if l >= self.mid
             {
-                self.rn.as_ref().map_or(0, |right| right.borrow().ask(l, r))
+                self.r_node
+                    .as_ref()
+                    .map_or(0, |right| right.borrow().ask(l, r))
             }
             else
             {
                 let left_val = self
-                    .ln
+                    .l_node
                     .as_ref()
                     .map_or(0, |left| left.borrow().ask(l, self.mid));
                 let right_val = self
-                    .rn
+                    .r_node
                     .as_ref()
                     .map_or(0, |right| right.borrow().ask(self.mid, r));
                 left_val + right_val
