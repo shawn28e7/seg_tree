@@ -15,6 +15,10 @@ pub mod seg_tree
     {
         pub fn new(l: usize, r: usize) -> SegTree
         {
+            if l >= r
+            {
+                panic!("Invalid range: left bound must be less than right bound");
+            }
             let m: usize = l + (r - l) / 2;
             SegTree {
                 val: 0,
@@ -49,6 +53,10 @@ pub mod seg_tree
 
         pub fn revise(&mut self, tar: usize, k: i32)
         {
+            if tar < self.range.0 || tar >= self.range.1
+            {
+                panic!("Target index out of range");
+            }
             if (tar, tar + 1) == self.range
             {
                 self.val = k;
@@ -76,6 +84,10 @@ pub mod seg_tree
 
         pub fn ask(&self, l: usize, r: usize) -> i32
         {
+            if l >= r || l < self.range.0 || r > self.range.1
+            {
+                panic!("Invalid query range");
+            }
             if l >= r
             {
                 return 0;
@@ -137,11 +149,26 @@ mod tests
     }
 
     #[test]
+    #[should_panic(expected = "Invalid range: left bound must be less than right bound")]
+    fn test_invalid_build()
+    {
+        SegTree::new(10, 0);
+    }
+
+    #[test]
     fn test_revise()
     {
         let mut seg_tree = SegTree::new(0, 10);
         seg_tree.revise(2, 10);
         assert_eq!(seg_tree.ask(2, 3), 10);
+    }
+
+    #[test]
+    #[should_panic(expected = "Target index out of range")]
+    fn test_invalid_revise()
+    {
+        let mut seg_tree = SegTree::new(0, 10);
+        seg_tree.revise(10, 10);
     }
 
     #[test]
@@ -157,8 +184,15 @@ mod tests
         assert_eq!(seg_tree.ask(5, 10), 35); // Sum of 5 to 9
         assert_eq!(seg_tree.ask(3, 7), 18); // Sum of 3 to 6
     }
-}
 
+    #[test]
+    #[should_panic(expected = "Invalid query range")]
+    fn test_invalid_ask()
+    {
+        let seg_tree = SegTree::new(0, 10);
+        seg_tree.ask(10, 0);
+    }
+}
 fn main()
 {
     let mut seg_tree: seg_tree::SegTree = seg_tree::SegTree::new(0, 10);
