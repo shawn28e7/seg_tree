@@ -13,11 +13,6 @@ pub mod seg_tree
 
     impl SegTree
     {
-        fn comb(a: i32, b: i32) -> i32
-        {
-            a + b
-        }
-
         pub fn new(l: usize, r: usize) -> SegTree
         {
             let m: usize = l + (r - l) / 2;
@@ -110,6 +105,8 @@ pub mod seg_tree
                 left_val + right_val
             }
         }
+
+        // for testing
         pub fn get_val(&self) -> i32
         {
             self.val
@@ -117,6 +114,11 @@ pub mod seg_tree
         pub fn get_range(&self) -> (usize, usize)
         {
             self.range
+        }
+        // combine to values
+        fn comb(a: i32, b: i32) -> i32
+        {
+            a + b
         }
     }
 }
