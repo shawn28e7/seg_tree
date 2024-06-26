@@ -4,8 +4,8 @@ pub mod seg_tree
     use std::rc::Rc;
     pub struct SegTree
     {
-        pub val: i32,
-        pub range: (usize, usize),
+        val: i32,
+        range: (usize, usize),
         mid: usize,
         ln: Option<Rc<RefCell<SegTree>>>,
         rn: Option<Rc<RefCell<SegTree>>>,
@@ -110,6 +110,14 @@ pub mod seg_tree
                 left_val + right_val
             }
         }
+        pub fn get_val(&self) -> i32
+        {
+            self.val
+        }
+        pub fn get_range(&self) -> (usize, usize)
+        {
+            self.range
+        }
     }
 }
 
@@ -122,8 +130,8 @@ mod tests
     fn test_build()
     {
         let seg_tree = SegTree::new(0, 10);
-        assert_eq!(seg_tree.range, (0, 10));
-        assert_eq!(seg_tree.val, 0);
+        assert_eq!(seg_tree.get_range(), (0, 10));
+        assert_eq!(seg_tree.get_val(), 0);
     }
 
     #[test]
