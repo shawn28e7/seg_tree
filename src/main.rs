@@ -20,7 +20,7 @@ pub mod seg_tree
 
         pub fn new(l: usize, r: usize) -> SegTree
         {
-            let m: usize = l + ((r - l) >> 1);
+            let m: usize = l + (r - l) / 2;
             SegTree {
                 val: 0,
                 ln: Some(Self::build(l, m)),
@@ -42,7 +42,7 @@ pub mod seg_tree
                     mid: l,
                 }));
             }
-            let m = l + ((r - l) >> 1);
+            let m = l + (r - l) / 2;
             Rc::new(RefCell::new(SegTree {
                 val: 0,
                 ln: Some(Self::build(l, m)),
